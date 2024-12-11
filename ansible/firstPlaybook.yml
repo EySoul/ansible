@@ -1,0 +1,8 @@
+---
+- name: Start dest server
+  hosts: all
+  become: yes
+
+
+  roles:
+  - {role: MainRole, when ansible_system == linux}

@@ -1,0 +1,8 @@
+---
+- name: Start
+  hosts: all
+  bacome: yes
+
+
+  roles:
+  - MainRole

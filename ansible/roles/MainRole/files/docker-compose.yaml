@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./front 
+    ports:
+      - "4173:4173"
+    networks:
+      - my_network
+    image: frontend:v2.0
+    
+      
+
+  backend:
+    build:
+      context: ./back
+    networks:
+      - my_network
+    volumes:
+      - ./data:/app/data
+    image: backend:v2.0
+networks:
+  my_network:
+    driver: bridge
+

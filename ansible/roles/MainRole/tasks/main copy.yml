@@ -1,0 +1,35 @@
+---
+# tasks file deploy start and stop
+
+- name: Клонирование репозитория frontend
+  become: true
+  git:
+    repo: 'git@github.com:EySoul/frontendForLab1-.git'
+    dest: /proj/front
+  tags: 
+  - deploy
+
+- name: Клонирование репозитория backend
+  become: true
+  git:
+    repo: 'git@github.com:EySoul/backendForLab1.git'
+    dest: /proj/back
+  tags: 
+  - deploy
+
+- name: Клонирование compose.yml
+  copy:
+    src: docker-compose.yaml
+    dest: /proj/front
+    mode: '0600'
+  become: true
+  tags: 
+    - deploy
+
+- name: Запуск Docker Compose
+  command: docker-compose --build
+  args:
+    chdir: /proj
+  become: true
+  tags:
+    - deploy

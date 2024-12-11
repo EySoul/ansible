@@ -1,0 +1,110 @@
+---
+# tasks file deploy start and stop
+- name: Crating ssh folder for root
+  become: true
+  file: path=/root/.ssh/ state=directory
+  tags: 
+  - deploy
+
+- name: Upload the private key used for Github cloning
+  become: true
+  copy: src=devops dest=/root/.ssh/github mode=0600
+  tags: 
+  - deploy
+  
+- name: Upload the private key used for Github cloning
+  become: true
+  copy: src=devops dest=/root/.ssh/github mode=0600
+  tags: 
+  - deploy
+
+
+- name: Клонирование репозитория frontend
+  become: true
+  git:
+    repo: git@github.com:EySoul/frontendForLab1-.git
+    dest: /proj/front
+    key_file: /root/.ssh/github
+    accept_hostkey: yes
+    force: yes
+  tags: 
+  - deploy
+
+- name: Клонирование репозитория backend
+  become: true
+  git:
+    repo: 'git@github.com:EySoul/backendForLab1.git'
+    dest: /proj/back
+    key_file: /root/.ssh/github
+    accept_hostkey: yes
+  tags: 
+  - deploy
+
+- name: Клонирование compose.yml
+  copy:
+    src: docker-compose.yaml
+    dest: /proj
+    mode: '0600'
+  become: true
+  tags: 
+    - deploy
+
+- name: Добавить GPG ключ Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  tags: 
+  - deploy
+
+- name: Установить Docker
+  become: true
+  apt:
+    name: docker-ce
+    state: present
+  tags: 
+  - deploy
+
+- name: Убедиться, что Docker запущен
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  tags: 
+  - deploy
+
+- name: Установить Docker Compose
+  become: true
+  apt:
+    name: docker-compose
+    state: present
+  tags: 
+  - deploy
+
+
+- name: Проверить версию Docker Compose
+  become: true
+  command: docker-compose --version
+  register: compose_version
+  tags: 
+  - deploy
+
+- name: Запуск Docker Compose
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: /proj/
+    project_name: my_fullstack
+    state: present
+    recreate: always
+  tags:
+    - start
+
+- name: Остановка Docker Images
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: /proj/
+    project_name: my_fullstack
+    state: absent
+    recreate: always
+  tags:
+    - stop
